@@ -58,6 +58,57 @@ write.csv(valid_test,file="./output/valid_test_clean.csv",row.names=FALSE)
 #test
 filename = other_dev[1,1]
 w = readMP3(paste0("./data/",filename))
+str(w) # print
+
 melw = melfcc(w)
 
 
+####
+#trying out codes from tutorials
+
+length(w@left)/w@samp.rate # 2.88 secs of the data
+s <- w@left / 2^(w@bit -1) # converting to the -1 to 1 scale
+
+time_array <- (0:(length(w@left)-1)) / w@samp.rate * 1000 # ms
+plot(time_array, s, type='l', col='black', xlab='Time (ms)', ylab='Amplitude')
+
+n = length(s)
+p = fft(s)
+
+n_unique_pts <- ceiling((n+1)/2)
+p <- p[1:n_unique_pts] #select just the first half since the second half 
+   # is a mirror image of the first
+p <- abs(p)
+p <- p / n
+p <- p^2
+
+if (n %% 2 > 0){
+  p[2:length(p)] <- p[2:length(p)]*2 # we've got odd number of points fft
+} else {
+  p[2: (length(p) -1)] <- p[2: (length(p) -1)]*2 # we've got even number of points fft
+}
+
+freq_array <- (0:(n_unique_pts-1)) * (w@samp.rate / n) #  create the frequency array 
+plot(freq_array/1000, 10*log10(p), type='l', col='black', xlab='Frequency (kHz)', ylab='Power (dB)')
+
+rms_val <- sqrt(mean(s^2))
+rms_val
+#[1] 0.09726062
+sqrt(sum(p))
+#[1] 0.09726062
+
+
+
+my.ceps <- function(wave) {
+  signal <- wave@left
+  n <- length(signal)
+  f <- wave@samp.rate
+  N <- round(n/2)
+  z1 <- Re(fft(log(abs(fft(signal))), inverse = TRUE))
+  z <- z1[1:N]
+  x <- seq(0, N/f, length.out = N)
+  results <- cbind(x, z)
+  return(results)
+}
+
+my.ceps.w = my.ceps(w)
