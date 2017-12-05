@@ -6,7 +6,7 @@
 rm(list=ls())
 setwd('~/Documents/Github/fall2017-project5-proj5-grp9')
 
-packages.used=c("nnet","gbm")
+packages.used=c("nnet","gbm","caret")
 
 packages.needed=setdiff(packages.used, intersect(installed.packages()[,1], packages.used))
 if(length(packages.needed)>0){
@@ -14,6 +14,11 @@ if(length(packages.needed)>0){
 }
 library(nnet)
 library(gbm)
+library(caret)
+
+#######################################
+# Load summary
+#######################################
 
 data = read.csv("./output/example_summary_stats.csv",header=T)
 rownames(data) = data[,1] # moving file names to rownames
@@ -30,42 +35,105 @@ gender_df = data.frame(gender, x)
 accent_df = data.frame(accent, x)
 
 #######################################
+# Divide into test and train for testing
+#######################################
+
+divide_dataset = function(df){
+  set.seed(123)
+  index = sample(1:nrow(df), size=0.7*nrow(df))
+  train_data = df[index,]
+  test_data = df[-index,]
+  return(list(train_data,test_data))
+}
+
+adf = divide_dataset(age_df)
+age_train = adf[[1]]
+age_test = adf[[2]]
+
+gdf = divide_dataset(gender_df)
+gender_train = gdf[[1]]
+gender_test = gdf[[2]]
+
+accdf = divide_dataset(accent_df)
+accent_train = accdf[[1]]
+accent_test = accdf[[2]]
+
+#######################################
+# test_result function
+#######################################
+
+test_result <- function(test_data, fit){
+  # input: test data & fit obtained from train data
+  # output: accuracy and confusion matrix
+  pred = predict(fit, type="class", newdata=test_data)
+  accuracy = postResample(test_data[,1], pred)
+  matrix = confusionMatrix(test_data[,1], pred)$table
+  return(list(accuracy,matrix))
+}
+
+# This prints out the result:
+# test_result(age_test, age_multinom_fit)
+
+
+#######################################
 # multinom_train function
 #######################################
 multinom_train <- function(train_data, y){
-  multinom_fit <- multinom(formula = y ~ .,
+  multinom_fit <- multinom(formula = as.factor(y) ~ .,
                            data=train_data, MaxNWts = 100000, maxit = 500)
-  #top_models = varImp(multinom_fit)
-  #top_models$variables = row.names(top_models)
-  #top_models = top_models[order(-top_models$Overall),]
   return(fit=multinom_fit)
 }
 
-# run it:
-age_multinom_fit = multinom_train(age_df, age)
+### Run it:
+# Training
+age_multinom_fit = multinom_train(age_train, age_train[,1])
+gender_multinom_fit = multinom_train(gender_train, gender_train[,1])
+accent_multinom_fit = multinom_train(accent_train, accent_train[,1])
+
+# Testing
+test_result(age_test, age_multinom_fit)
+test_result(gender_test, gender_multinom_fit)
+test_result(accent_test, accent_multinom_fit)
+
+
+# 161.653 secs
+#system.time(multinom_train(age_train, age_train[,1]))
+
+# VERY time consuming.
+#stepwisefit = step(age_multinom_fit$fit, direction="both",scope=formula(age_multinom_fit$fit))
+
 
 #######################################
-# multinom_test function
+# nnet_train function WIP
 #######################################
-multinom_test <- function(test_data, fit){
-  multinom_pred = predict(fit, type="class", newdata=test_data)
-  return(multinom_pred)
+nnet_train <- function(train_data, y, size){
+  nnet_fit <- nnet(formula = as.factor(y) ~ .,
+                   data=train_data, MaxNWts = 100000, 
+                   maxit = 1000, size = size, trace=T)
+  return(nnet_fit)
 }
 
-# run it:
-multinomtest_result = multinom_test(test_data,multinomfit_train$fit)
-postResample(test_data$label,multinomtest_result)
 
+nnet1 = nnet_train(age_train, age_train[,1], 1)
+nnet2 = nnet_train(age_train, age_train[,1], 2)
+#nnet3 = nnet_train(age_train, age_train[,1], 3)
+accuracy_vec = c()
 
-#system.time(multinom_train(train_data))
+pred = predict(nnet1, type="class", newdata=age_test)
+postResample(age_test[,1], pred)
+confusionMatrix(age_test[,1], pred)$table
 
-# VERY time consuming:
-#stepwisefit = step(multinomfit_train$fit, direction="both",scope=formula(multinomfit_train$fit))
+test_result(age_test, nnet1)
 
-
-nnet_train = function(train data, other params){
-  fit = 
-  return fit
+for(i in 1:5){
+  fit = nnet_train(age_train, age_train[,1], i)
+  nnettest_result = test_result(age_test, fit)
+  accuracy = nnettest_result[[1]]
+  accuracy_vec <- c(accuracy_vec, accuracy)
 }
+accuracy_vec
 
+#######################################
+# nnet_train function
+#######################################
 
