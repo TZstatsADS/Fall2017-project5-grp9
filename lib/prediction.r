@@ -6,7 +6,7 @@
 rm(list=ls())
 setwd('~/Documents/Github/fall2017-project5-proj5-grp9')
 
-packages.used=c("nnet","gbm","caret")
+packages.used=c("nnet","gbm","caret","randomForest")
 
 packages.needed=setdiff(packages.used, intersect(installed.packages()[,1], packages.used))
 if(length(packages.needed)>0){
@@ -15,6 +15,7 @@ if(length(packages.needed)>0){
 library(nnet)
 library(gbm)
 library(caret)
+library(randomForest)
 
 #######################################
 # Load summary
@@ -134,6 +135,20 @@ for(i in 1:5){
 accuracy_vec
 
 #######################################
-# nnet_train function
+# random forest function
 #######################################
+
+random_forest_train <- function(train_data, n_trees) {
+  mtry <- tuneRF(y = as.factor(train_data[,1]), 
+                         x= train_data[,-1], ntree=n_trees)
+  mtry <- mtry[,1][which.min(mtry[,2])]
+  
+  rf_fit <- randomForest(as.factor(train_data[,1]) ~ ., 
+                                   data = train_data, ntree=n_trees, 
+                                   mtry=mtry, importance=T)
+  return(rf_fit)
+}
+
+rf1 = random_forest_train(age_train,1)
+
 
