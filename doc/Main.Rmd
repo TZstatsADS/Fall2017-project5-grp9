@@ -1,13 +1,25 @@
 ---
 title: "Main"
+<<<<<<< HEAD
+author: "Wyatt Thompson"
+date: "December 5, 2017"
+output: html_document
+---
+![](../lib/catcartoon.jpeg)
+=======
 author: "Wyatt Thompson, Saaya Yasuda"
 date: "December 5, 2017"
 output: html_document
 ---
 ![](../figs/catcartoon.jpeg)
+<<<<<<< HEAD
 
 
 ## So where ya'll from? 
+=======
+>>>>>>> 9172a0da06504d65871da4d8675376387de4c08b
+###So where ya'll from? 
+>>>>>>> 2ab9bd76fad95be0a7c5960a38b312fd65dac416
 
 Every person who speaks, or has ever spoken, has an accent, a lingering effect from a linguistic history. 
 
@@ -31,8 +43,11 @@ library(gbm)
 library(caret) # test result etc
 library(randomForest) #RF
 library(e1071) #SVM
+<<<<<<< HEAD
+=======
 library(xgboost) #XGBoost
 library(dplyr)
+>>>>>>> 9172a0da06504d65871da4d8675376387de4c08b
 library(ggplot2)
 library(corrplot)
 library(RColorBrewer)
@@ -108,8 +123,11 @@ We then use these observed features to classify Age, Sex, and Country.
 data<-read.csv("../output/all_features.csv")
 data<-data[(data$age>0),]
 data$sex[data$sex=="famale"]<-"female"
+<<<<<<< HEAD
+=======
 data$sex = factor(data$sex,levels = c("female","male"))
 
+>>>>>>> 9172a0da06504d65871da4d8675376387de4c08b
 head(data[1:6])
 head(data[7:12])
 head(data[13:18])
@@ -135,6 +153,52 @@ Note the two peaks in fundamental frequency. It appears there's a significantly 
 ggplot(data)+geom_histogram(aes(meanfun,fill=sex),bins=60)+scale_fill_brewer(palette="Set1")
 ```
 
+<<<<<<< HEAD
+```{r}
+
+
+```
+
+```{r}
+genderdf<-data[,c(2:23,28)]
+genderdf$sex<-as.factor(genderdf$sex)
+train<-round(.75*nrow(genderdf))
+train.ind<-sample(1:nrow(genderdf),train)
+traindata<-genderdf[train.ind,]
+testdata<-genderdf[-train.ind,]
+
+
+genderSVM<-svm(sex~.,data=traindata,gamma=.02,cost=2)
+
+#TrainTest
+predictSvm <- predict(genderSVM, testdata)
+table(predictSvm, testdata$sex)
+sum(predictSvm ==testdata$sex)/length(testdata$sex)
+#SVM.tune<-tune(svm,sex~.,data=traindata,
+            #   ranges = list(gamma = c(0,.01,.02,.03,.04), cost = 2^(-1:2)))
+#SVM.tune
+
+
+
+```
+
+```{r}
+countrydf<-data[,c(2:23,30)]
+countrydf$country<-as.factor(countrydf$country)
+train<-round(.75*nrow(countrydf))
+train.ind<-sample(1:nrow(countrydf),train)
+traindata<-countrydf[train.ind,]
+testdata<-countrydf[-train.ind,]
+countrySVM<-svm(country~.,data=traindata)
+predictSvm <- predict(countrySVM, testdata)
+table(predictSvm, testdata$country)
+sum(predictSvm ==testdata$sex)/length(testdata$sex)
+
+
+SVM.tune<-tune(svm,country~.,data=traindata,
+              ranges = list(gamma = c(0,.01,.02,.03,.04), cost = 2^(-1:2)))
+SVM.tune
+=======
 ### Prediction! Can we guess the speaker from the voice data...?
 
 
@@ -342,10 +406,38 @@ params_df = expand.grid(nrounds=c(100,200),
 train_control = trainControl(method = "cv", number = 5,
                              verboseIter = T, returnData = F,
                              returnResamp = "all", allowParallel = T)
+>>>>>>> 9172a0da06504d65871da4d8675376387de4c08b
 
 ```
 
 ```{r}
+<<<<<<< HEAD
+tb<-sort(table(data$country),decreasing = T)
+countrydf<-data[data$country %in% names(tb[1:2]) & data$sex=="female",]
+
+countrydf$country<-droplevels(countrydf$country)
+#rownames(countrydf)<-countrydf$country
+scaledf<-scale(countrydf[,2:19,20:23])
+
+
+
+
+
+
+kcountry<-kmeans(scaledf,2)
+table(kcountry$cluster,countrydf$country)
+d<-as.matrix(cbind(scaledf))
+di<-dist(d)
+hc<-hclust(di)
+plot(hc)
+clustercut<-cutree(hc,4)
+table(clustercut,countrydf$country)
+
+hcd<-as.dendrogram(hc)
+plot(clustercut)
+
+```
+=======
 # Gender prediction
 if(RUNALL){
   labels_train = as.matrix(as.integer(train_sex$sex)-1)
@@ -485,3 +577,4 @@ if(RUNALL){
 
 
 
+>>>>>>> 9172a0da06504d65871da4d8675376387de4c08b
