@@ -358,7 +358,7 @@ postResample(xgpred_country$country, test_country$country)
 #0.19531250 0.08866695 
 
 
-# Age
+# Age (haven't tested)
 set.seed(123)
 labels_train = as.matrix(as.integer(train_age$age)-1)
 
@@ -375,8 +375,6 @@ xgb_train_age = train(x=subset(data.matrix(train_age), select=-age),
 #best param
 head(xgb_train_age$results[with(xgb_train_age$results,order(Accuracy, decreasing=T)),],5)
 xgb_train_age$bestTune
-#     nrounds max_depth eta gamma colsample_bytree min_child_weight subsample
-#28     200         3 0.1     1              0.9                1      0.75
 
 xgbfit_age = xgboost(data =subset(data.matrix(train_age), select=-age),
                      label = labels_train, objective="multi:softprob",
@@ -393,39 +391,46 @@ xgpred_age = cbind(xgpred_age, maxcol=apply(xgpred_age, 1, which.max))
 
 
 
-
-
-
-
-
 #######################################
 # Logistic regression
 #######################################
 
 # Sex
 set.seed(123)
-lgfit_sex = glm(formula = sex ~ ., data=train_sex, family=binomial(link='logit'))
-lgpred_sex = predict(lgfit_sex, test_sex)
-table(lgpred_sex, test_sex$sex)
-postResample(lgpred_sex, test_sex$sex)
+lgfit_sex = glm(formula = as.factor(sex) ~ ., data=train_sex, family=binomial(link='logit'))
+lgpred_sex = plogis(predict(lgfit_sex, test_sex))
+lgpred_sex_f <- rep('female',length(lgpred_sex))
+lgpred_sex_f[lgpred_sex>=0.5] = "male"
+
+table(lgpred_sex_f, test_sex$sex)
+#lgpred_sex_f female male
+#female    297   23
+#male       20  300
+
+postResample(lgpred_sex_f, test_sex$sex)
+#Accuracy     Kappa 
+#0.9328125 0.8656250 
+
 
 # Age
 set.seed(123)
-lgfit_age = glm(formula = age ~ ., data=train_age, family=binomial(link='logit'))
-lgpred_age = predict(lgfit_age, test_age)
-MSE_lg = mean( (lgpred_age - test_age$age)^2)
-MSE_lg #
+train_age2 = cbind(train_age, age0_1 = train_age["age"]/100)
+lgfit_age = glm(formula = age/100 ~ ., data=train_age, family=binomial(link='logit'))
+test_age2 = cbind(age0_1 = test_age["age"]/100, test_age[,-1])
+lgpred_age = predict(lgfit_age, test_age2, type="response")
+
+MSE_lg = mean( ((lgpred_age)*100 - (test_age2$age)*100 )^2)
+MSE_lg #181.7178
 
 #Country
 set.seed(123)
-lgfit_country = multinom(formula = country ~ .,
-                        data=train, MaxNWts = 100000, maxit = 100)
+lgfit_country = multinom(formula = as.factor(country) ~ .,
+                        data=train_country, MaxNWts = 140000, maxit = 1000)
 lgpred_country = predict(lgfit_country, test_country)
 #table(lgpred_country, test_country$country)
 postResample(lgpred_country, test_country$country)
-
-
-
+#  Accuracy      Kappa 
+#0.18906250 0.09001499
 
 
 #######################################
