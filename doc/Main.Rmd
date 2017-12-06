@@ -1,25 +1,13 @@
 ---
 title: "Main"
-<<<<<<< HEAD
-author: "Wyatt Thompson"
-date: "December 5, 2017"
-output: html_document
----
-![](../lib/catcartoon.jpeg)
-=======
 author: "Wyatt Thompson, Saaya Yasuda"
 date: "December 5, 2017"
 output: html_document
 ---
 ![](../figs/catcartoon.jpeg)
-<<<<<<< HEAD
 
 
 ## So where ya'll from? 
-=======
->>>>>>> 9172a0da06504d65871da4d8675376387de4c08b
-###So where ya'll from? 
->>>>>>> 2ab9bd76fad95be0a7c5960a38b312fd65dac416
 
 Every person who speaks, or has ever spoken, has an accent, a lingering effect from a linguistic history. 
 
@@ -43,11 +31,8 @@ library(gbm)
 library(caret) # test result etc
 library(randomForest) #RF
 library(e1071) #SVM
-<<<<<<< HEAD
-=======
 library(xgboost) #XGBoost
 library(dplyr)
->>>>>>> 9172a0da06504d65871da4d8675376387de4c08b
 library(ggplot2)
 library(corrplot)
 library(RColorBrewer)
@@ -123,11 +108,8 @@ We then use these observed features to classify Age, Sex, and Country.
 data<-read.csv("../output/all_features.csv")
 data<-data[(data$age>0),]
 data$sex[data$sex=="famale"]<-"female"
-<<<<<<< HEAD
-=======
 data$sex = factor(data$sex,levels = c("female","male"))
 
->>>>>>> 9172a0da06504d65871da4d8675376387de4c08b
 head(data[1:6])
 head(data[7:12])
 head(data[13:18])
@@ -153,11 +135,6 @@ Note the two peaks in fundamental frequency. It appears there's a significantly 
 ggplot(data)+geom_histogram(aes(meanfun,fill=sex),bins=60)+scale_fill_brewer(palette="Set1")
 ```
 
-<<<<<<< HEAD
-```{r}
-
-
-```
 
 ```{r}
 genderdf<-data[,c(2:23,28)]
@@ -198,9 +175,10 @@ sum(predictSvm ==testdata$sex)/length(testdata$sex)
 SVM.tune<-tune(svm,country~.,data=traindata,
               ranges = list(gamma = c(0,.01,.02,.03,.04), cost = 2^(-1:2)))
 SVM.tune
-=======
-### Prediction! Can we guess the speaker from the voice data...?
+  
+```
 
+### Prediction! Can we guess the speaker from the voice data...?
 
 
 #### Process data & divide into train & test
@@ -227,7 +205,6 @@ uncommon$country="other"
 data = rbind(common,uncommon)
 
 data$country = droplevels(data$country) # reduce levels
-
 
 #######################################
 # Divide into test and train for testing
@@ -298,13 +275,29 @@ svmpred_age = predict(svmfit_age, test_age)
 MSE_svm = mean( (svmpred_age - test_age$age)^2)
 MSE_svm
 
+if (RUNALL){
+  svmtuned_age <- tune(svm, age ~ .,  data = train_age, 
+                       ranges = list(epsilon = seq(0,1,0.1), cost = 2^(2:9)))
+  print(svmtuned_age)
+  #- best parameters:
+  #  epsilon cost
+  #    0.5    4
+  #plot(svmtuned_age)
+  
+  svmfit_age_better = svm(age ~ ., train_age, epsilon=0.5, cost=4)
+  svmpred_age_better = predict(svmfit_age_better, test_age)
+  MSE_svm_better = mean( (svmpred_age_better - test_age$age)^2)
+  MSE_svm_better # 182.7476 slight improvement
+}
+
+
 # Country
 svmfit_co = svm(country ~ ., train_country)
 svmpred_co = predict(svmfit_co, test_country)
 #table(svmpred_co,test_country$country)
 postResample(svmpred_co, test_country$country)
 ```
-For age and country, tuning took too long. For more details, please see the (prediction.r)[../lib/prediction.r] file
+For country, tuning took too long. For more details, please see the (prediction.r)[../lib/prediction.r] file
  
  
 #### Model 2: Random Forest
@@ -406,38 +399,11 @@ params_df = expand.grid(nrounds=c(100,200),
 train_control = trainControl(method = "cv", number = 5,
                              verboseIter = T, returnData = F,
                              returnResamp = "all", allowParallel = T)
->>>>>>> 9172a0da06504d65871da4d8675376387de4c08b
 
 ```
+
 
 ```{r}
-<<<<<<< HEAD
-tb<-sort(table(data$country),decreasing = T)
-countrydf<-data[data$country %in% names(tb[1:2]) & data$sex=="female",]
-
-countrydf$country<-droplevels(countrydf$country)
-#rownames(countrydf)<-countrydf$country
-scaledf<-scale(countrydf[,2:19,20:23])
-
-
-
-
-
-
-kcountry<-kmeans(scaledf,2)
-table(kcountry$cluster,countrydf$country)
-d<-as.matrix(cbind(scaledf))
-di<-dist(d)
-hc<-hclust(di)
-plot(hc)
-clustercut<-cutree(hc,4)
-table(clustercut,countrydf$country)
-
-hcd<-as.dendrogram(hc)
-plot(clustercut)
-
-```
-=======
 # Gender prediction
 if(RUNALL){
   labels_train = as.matrix(as.integer(train_sex$sex)-1)
@@ -503,6 +469,7 @@ if(RUNALL){
   set.seed(123)
   labels_train = as.matrix(as.integer(train_country$country)-1)
   
+  # this takes REALLY long time
   xgb_train_country = train(x=subset(data.matrix(train_country), select=-country), 
                           y=as.factor(labels_train),
                           trControl = train_control2,
@@ -514,7 +481,6 @@ if(RUNALL){
     #     nrounds max_depth eta gamma colsample_bytree min_child_weight subsample
     #5     100         3 0.1     1              0.7                1       0.5
   
-  # this takes REALLY long time
   xgbfit_country = xgboost(data =subset(data.matrix(train_country), select=-country),
                          label = labels_train, objective="multi:softprob",
                          eval_metric="merror",num_class=88, verbose=F,
@@ -529,7 +495,34 @@ if(RUNALL){
 }
 ```
 
-### Model 4: Logistic
+
+### Model 4: cluster models?
+```{r}
+tb<-sort(table(data$country),decreasing = T)
+countrydf<-data[data$country %in% names(tb[1:2]) & data$sex=="female",]
+
+countrydf$country<-droplevels(countrydf$country)
+#rownames(countrydf)<-countrydf$country
+scaledf<-scale(countrydf[,2:19,20:23])
+
+
+kcountry<-kmeans(scaledf,2)
+table(kcountry$cluster,countrydf$country)
+d<-as.matrix(cbind(scaledf))
+di<-dist(d)
+hc<-hclust(di)
+plot(hc)
+clustercut<-cutree(hc,4)
+table(clustercut,countrydf$country)
+
+hcd<-as.dendrogram(hc)
+plot(clustercut)
+
+```
+
+
+
+### Model 5: Logistic
 
 ```{r}
 if(RUNALL){
@@ -574,7 +567,3 @@ if(RUNALL){
 }
 ```
 
-
-
-
->>>>>>> 9172a0da06504d65871da4d8675376387de4c08b

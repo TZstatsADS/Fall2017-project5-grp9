@@ -80,17 +80,20 @@ MSE_svm = mean( (svmpred_age - test_age$age)^2)
 MSE_svm #185.0999
 
 
-#tuning - takes REALLY LONG TIME to run. didn't finish.
+#tuning - takes REALLY LONG TIME to run.
 if (RUNALL){
   svmtuned_age <- tune(svm, age ~ .,  data = train_age, 
                        ranges = list(epsilon = seq(0,1,0.1), cost = 2^(2:9)))
   print(svmtuned_age)
+  #- best parameters:
+  #  epsilon cost
+  #    0.5    4
   #plot(svmtuned_age)
 }
-#svmfit_age_better = svm(age ~ ., train_age)
-#svmpred_age_better = predict(svmfit_age_better, test_age)
-#MSE_svm_better = mean( (svmpred_age_better - test_age$age)^2)
-#MSE_svm_better
+svmfit_age_better = svm(age ~ ., train_age, epsilon=0.5, cost=4)
+svmpred_age_better = predict(svmfit_age_better, test_age)
+MSE_svm_better = mean( (svmpred_age_better - test_age$age)^2)
+MSE_svm_better # 182.7476 slight improvement
 
 
 
@@ -431,6 +434,7 @@ lgpred_country = predict(lgfit_country, test_country)
 postResample(lgpred_country, test_country$country)
 #  Accuracy      Kappa 
 #0.18906250 0.09001499
+
 
 
 #######################################
