@@ -326,6 +326,7 @@ xgb_country_cv = xgb.cv(data =subset(data.matrix(train_country), select=-country
                         label = labels_train, nrounds=10, nfold=5, num_class=88,nthread=2,
                         objective="multi:softmax",eval_metric="merror",prediction=T)
 
+# Warning: this takes really long time 
 xgb_train_country = train(x=subset(data.matrix(train_country), select=-country), 
                           y=as.factor(labels_train),
                           trControl = train_control2,
@@ -335,7 +336,8 @@ xgb_train_country = train(x=subset(data.matrix(train_country), select=-country),
 head(xgb_train_country$results[with(xgb_train_country$results,order(Accuracy, decreasing=T)),],5)
 xgb_train_country$bestTune
 #     nrounds max_depth eta gamma colsample_bytree min_child_weight subsample
-#28     200         3 0.1     1              0.9                1      0.75
+#5     100         3 0.1     1              0.7                1       0.5
+
 
 xgbfit_country = xgboost(data =subset(data.matrix(train_country), select=-country),
                          label = labels_train, objective="multi:softprob",
@@ -343,23 +345,17 @@ xgbfit_country = xgboost(data =subset(data.matrix(train_country), select=-countr
                          params = xgb_train_country$bestTune,
                          nrounds=xgb_train_country$bestTune$nrounds)
 
-labels_test = as.matrix(as.integer(test_country$country)-1)
-
 xgpred_country = predict(xgbfit_country, 
                          subset(data.matrix(test_country), select=-country),reshape=T)
-colnames(xgpred_country) = levels(test_country$country)
-xgpred_country = cbind(xgpred_country, maxcol=apply(xgpred_country, 1, which.max))
+maxcol=apply(xgpred_country, 1, which.max)
+country = levels(test_country$country)[maxcol]
+xgpred_country = data.frame(xgpred_country, country)
 
-which.max(xgpred_country[100,])
+#table(xgpred_country$country, test_country$country)
+postResample(xgpred_country$country, test_country$country)
 
-xgpred_country = data.frame(xgpred_country) %>%
-  mutate(max_prob=which.max(.))
-#mutate(max_prob=max.col(.,"last"))
-
-xgpred_country = factor(xgpred_country,labels = levels(test_country$country))
-
-postResample(xgpred_country, test_country$country)
-table(xgpred_country, test_country$country)
+#Accuracy      Kappa 
+#0.19531250 0.08866695 
 
 
 # Age

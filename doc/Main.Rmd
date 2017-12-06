@@ -4,7 +4,7 @@ author: "Wyatt Thompson, Saaya Yasuda"
 date: "December 5, 2017"
 output: html_document
 ---
-![](../lib/catcartoon.jpeg)
+![](../figs/catcartoon.jpeg)
 ###So where ya'll from? 
 
 Every person who speaks, or has ever spoken, has an accent, a lingering effect from a linguistic history. 
@@ -134,6 +134,8 @@ ggplot(data)+geom_histogram(aes(meanfun,fill=sex),bins=60)+scale_fill_brewer(pal
 ```
 
 ### Prediction! Can we guess the speaker from the voice data...?
+
+
 
 #### Process data & divide into train & test
 
@@ -412,22 +414,24 @@ if(RUNALL){
                           trControl = train_control2,
                           tuneGrid = params_df2,
                           method = "xgbTree")
-  #best param
+  # Best param
   head(xgb_train_country$results[with(xgb_train_country$results,order(Accuracy, decreasing=T)),],5)
   xgb_train_country$bestTune
+    #     nrounds max_depth eta gamma colsample_bytree min_child_weight subsample
+    #5     100         3 0.1     1              0.7                1       0.5
   
+  # this takes REALLY long time
   xgbfit_country = xgboost(data =subset(data.matrix(train_country), select=-country),
                          label = labels_train, objective="multi:softprob",
                          eval_metric="merror",num_class=88, verbose=F,
                          params = xgb_train_country$bestTune,
                          nrounds=xgb_train_country$bestTune$nrounds)
 
-  labels_test = as.matrix(as.integer(test_country$country)-1)
-  
-  xgpred_country = predict(xgbfit_country, 
-                           subset(data.matrix(test_country), select=-country),reshape=T)
-  colnames(xgpred_country) = levels(test_country$country)
-  xgpred_country = cbind(xgpred_country, maxcol=apply(xgpred_country, 1, which.max))
+    xgpred_country = predict(xgbfit_country, 
+                         subset(data.matrix(test_country), select=-country),reshape=T)
+  maxcol=apply(xgpred_country, 1, which.max)
+  country = levels(test_country$country)[maxcol]
+  xgpred_country = data.frame(xgpred_country, country)
 }
 ```
 
