@@ -23,17 +23,20 @@ library(e1071) #SVM
 # Load summary
 #######################################
 
-data = read.csv("./output/example_summary_stats.csv",header=T)
+data = read.csv("./output/all_features.csv",header=T)
+data<-data[(data$age>0),]
+data$sex[data$sex=="famale"]<-"female"
 rownames(data) = data[,1] # moving file names to rownames
 data = data[,-1] # removing the file name col
 
-data = data[,-ncol(data)] #removing duration
-x = data[,c(1:(ncol(data)-3))] # indep variables
-age = data[,ncol(data)-2] # age
-gender = data[,ncol(data)-1] # gender
-accent = data[,ncol(data)] # accent
+#data = data[,-ncol(data)] #removing duration
+x = data[,c(1:22)] # indep variables
+age = data[,23] # age
+gender = data[,27] # gender
+accent = data[,26] # accent
 
 age_df = data.frame(age, x)
+
 gender_df = data.frame(gender, x)
 accent_df = data.frame(accent, x)
 
@@ -83,7 +86,7 @@ test_result = function(test_data, fit){
 #######################################
 multinom_train = function(train_data, y){
   set.seed(123)
-  multinom_fit = multinom(formula = as.factor(y) ~ .,
+  multinom_fit = multinom(formula = y ~ .,
                           data=train_data, MaxNWts = 100000, maxit = 500)
   return(fit=multinom_fit)
 }
@@ -91,7 +94,7 @@ multinom_train = function(train_data, y){
 ### Run it:
 # Training - age
 age_multinom_fit = multinom_train(age_train, age_train[,1])
-# Testing - age
+ #Testing - age
 test_result(age_test, age_multinom_fit)
 
 # the rest

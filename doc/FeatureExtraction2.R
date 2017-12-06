@@ -53,7 +53,7 @@ stats<-data.frame(
   file=NA
 )
 ##Heavy Lifting---creates the summary stats for the files
-for(i in 402:length(files)){
+for(i in 1:length(files)){
   r<-readWave(files[i])
   songspec <- seewave::spec(r, f = r@samp.rate, plot = FALSE)
   analysis <- seewave::specprop(songspec, f = r@samp.rate, 
@@ -76,7 +76,7 @@ for(i in 402:length(files)){
   an$dfrange <- (an$maxdom - an$mindom)
   
   
-  #modulation index calculation
+  #modulation index 
   changes <- vector()
   for(j in which(!is.na(y))){
     change <- abs(y[j] - y[j + 1])
