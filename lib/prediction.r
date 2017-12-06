@@ -492,3 +492,5 @@ test_result = function(test_data, fit, is_factor){
 
 # This prints out the result:
 # test_result(age_test, age_multinom_fit)
+
+
