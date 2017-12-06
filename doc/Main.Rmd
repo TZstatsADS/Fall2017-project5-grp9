@@ -128,3 +128,55 @@ Note the two peaks in fundamental frequency. It appears there's a significantly 
 ```{r}
 ggplot(data)+geom_histogram(aes(meanfun,fill=sex),bins=60)+scale_fill_brewer(palette="Set1")
 ```
+
+```{r}
+
+
+```
+
+```{r}
+genderdf<-data[,c(2:23,28)]
+genderdf$sex<-as.factor(genderdf$sex)
+train<-round(.75*nrow(genderdf))
+train.ind<-sample(1:nrow(genderdf),train)
+traindata<-genderdf[train.ind,]
+testdata<-genderdf[-train.ind,]
+
+
+genderSVM<-svm(sex~.,data=traindata,gamma=.02,cost=2)
+
+#TrainTest
+predictSvm <- predict(genderSVM, testdata)
+table(predictSvm, testdata$sex)
+sum(predictSvm ==testdata$sex)/length(testdata$sex)
+#SVM.tune<-tune(svm,sex~.,data=traindata,
+            #   ranges = list(gamma = c(0,.01,.02,.03,.04), cost = 2^(-1:2)))
+#SVM.tune
+
+
+
+```
+
+```{r}
+countrydf<-data[,c(2:23,30)]
+countrydf$country<-as.factor(countrydf$country)
+train<-round(.75*nrow(countrydf))
+train.ind<-sample(1:nrow(countrydf),train)
+traindata<-countrydf[train.ind,]
+testdata<-countrydf[-train.ind,]
+#countrySVM<-svm(country~.,data=traindata,)
+
+
+
+SVM.tune<-tune(svm,country~.,data=traindata,
+              ranges = list(gamma = c(0,.01,.02,.03,.04), cost = 2^(-1:2)))
+SVM.tune
+
+```
+
+```{r}
+scaledf<-scale(data[,2:23])
+d<-as.matrix()
+
+
+```
