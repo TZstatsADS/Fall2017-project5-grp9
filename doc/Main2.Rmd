@@ -170,14 +170,16 @@ countrydf$country<-as.factor(countrydf$country)
 
 train<-round(.75*nrow(countrydf))
 train.ind<-sample(1:nrow(countrydf),train)
-traindata<-countrydf[train.ind,]
-testdata<-countrydf[-train.ind,]
 
-countrySVM<-svm(country~.,data=traindata,gamma=.02,cost=4)
+traindata<-checkCountry[train.ind,]
+testdata<-checkCountry[-train.ind,]
+
+countrySVM<-svm(y=as.factor(checkCountry[,7]),
+                            x=checkCountry[,-7],data=traindata,gamma=.02,cost=4)
 
 predictSvm <- predict(countrySVM, testdata)
 
-table(predictSvm, testdata$country)
+table(predictSvm, testdata$V7)
 
 sum(predictSvm ==testdata$country)/length(testdata$country)
 
@@ -238,4 +240,8 @@ predictors(results)
 # plot the results
 plot(results, type=c("g", "o"))
 
+checkCountry<-cbind(countrydf$median,countrydf$prec,countrydf$sem,
+                    countrydf$modindx,countrydf$sfm,countrydf$mode)
+
+check<-rpart()
 ```

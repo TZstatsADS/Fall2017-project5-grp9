@@ -164,8 +164,10 @@ train<-round(.75*nrow(countrydf))
 train.ind<-sample(1:nrow(countrydf),train)
 traindata<-countrydf[train.ind,]
 testdata<-countrydf[-train.ind,]
-#countrySVM<-svm(country~.,data=traindata,)
-
+countrySVM<-svm(country~.,data=traindata)
+predictSvm <- predict(countrySVM, testdata)
+table(predictSvm, testdata$country)
+sum(predictSvm ==testdata$sex)/length(testdata$sex)
 
 
 SVM.tune<-tune(svm,country~.,data=traindata,
@@ -175,8 +177,28 @@ SVM.tune
 ```
 
 ```{r}
-scaledf<-scale(data[,2:23])
-d<-as.matrix()
+tb<-sort(table(data$country),decreasing = T)
+countrydf<-data[data$country %in% names(tb[1:2]) & data$sex=="female",]
 
+countrydf$country<-droplevels(countrydf$country)
+#rownames(countrydf)<-countrydf$country
+scaledf<-scale(countrydf[,2:19,20:23])
+
+
+
+
+
+
+kcountry<-kmeans(scaledf,2)
+table(kcountry$cluster,countrydf$country)
+d<-as.matrix(cbind(scaledf))
+di<-dist(d)
+hc<-hclust(di)
+plot(hc)
+clustercut<-cutree(hc,4)
+table(clustercut,countrydf$country)
+
+hcd<-as.dendrogram(hc)
+plot(clustercut)
 
 ```
