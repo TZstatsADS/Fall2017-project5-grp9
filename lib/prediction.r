@@ -24,10 +24,29 @@ library(e1071) #SVM
 #######################################
 
 data = read.csv("./output/all_features.csv",header=T)
+<<<<<<< HEAD
 rownames(data) = data[,1] # moving file names to rownames
 data = data[,-1] # removing the file name col
 
 data = as.matrix(data)
+=======
+data<-data[(data$age>0),]
+data$sex[data$sex=="famale"]<-"female"
+rownames(data) = data[,1] # moving file names to rownames
+data = data[,-1] # removing the file name col
+
+#data = data[,-ncol(data)] #removing duration
+x = data[,c(1:22)] # indep variables
+age = data[,23] # age
+gender = data[,27] # gender
+accent = data[,26] # accent
+
+age_df = data.frame(age, x)
+
+gender_df = data.frame(gender, x)
+accent_df = data.frame(accent, x)
+
+>>>>>>> 122bb781a567cb204745cf79e8144b85047ae770
 #######################################
 # Divide into test and train for testing
 #######################################
@@ -110,6 +129,7 @@ test_result(test_country,multinom_fit$fitted.values,T)
 
 multinom_train = function(train_data, y, is_factor){
   set.seed(123)
+<<<<<<< HEAD
   if(is_factor){
     multinom_fit = multinom(formula = as.factor(y) ~ .,
                             data=train_data, MaxNWts = 100000, maxit = 500)
@@ -118,16 +138,26 @@ multinom_train = function(train_data, y, is_factor){
     multinom_fit = multinom(formula = unlist(y) ~ .,
                             data=train_data, MaxNWts = 100000, maxit = 500)
   }
+=======
+  multinom_fit = multinom(formula = y ~ .,
+                          data=train_data, MaxNWts = 100000, maxit = 500)
+>>>>>>> 122bb781a567cb204745cf79e8144b85047ae770
   return(fit=multinom_fit)
 }
 
 ### Run it:
 # Training - age
+<<<<<<< HEAD
 age_multinom_fit = multinom_train(train_age, train_age["age"], is_factor=FALSE)
 
 country_multinom_fit = multinom_train(train_country, train_country["country"], is_factor=T)
 # Testing - age
 test_result(test_age, age_multinom_fit, is_factor=TRUE)
+=======
+age_multinom_fit = multinom_train(age_train, age_train[,1])
+ #Testing - age
+test_result(age_test, age_multinom_fit)
+>>>>>>> 122bb781a567cb204745cf79e8144b85047ae770
 
 # the rest
 RUN = FALSE
