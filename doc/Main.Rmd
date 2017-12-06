@@ -5,7 +5,9 @@ date: "December 5, 2017"
 output: html_document
 ---
 ![](../figs/catcartoon.jpeg)
-###So where ya'll from? 
+
+
+## So where ya'll from? 
 
 Every person who speaks, or has ever spoken, has an accent, a lingering effect from a linguistic history. 
 
