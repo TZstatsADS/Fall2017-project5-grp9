@@ -4,7 +4,7 @@
 Term: Fall 2017
 
 + Team # 9
-+ Projec title: "So where ya'll from?" -- Speaker demographic prediction from mp3 voice clips
++ Project title: *"So where ya'll from?" -- Speaker demographic prediction from mp3 voice clips*
 + Team members
 	+ Wyatt Cole Thompson (wct2112)
 	+ Saaya Yasuda (sy2569)
@@ -30,6 +30,7 @@ The initial dataset we looked into is:
 	+ https://www.kaggle.com/mozillaorg/common-voice
 	+ This data was large enough, but the file structure in Kaggle didn't match the csv file, and csv file had many missing labels.
 
+### File structure
 Following [suggestions](http://nicercode.github.io/blog/2013-04-05-projects/) by [RICH FITZJOHN](http://nicercode.github.io/about/#Team) (@richfitz). This folder is orgarnized as follows.
 
 ```
