@@ -12,14 +12,13 @@ Term: Fall 2017
 
 
 ### Main File
-[Main.pdf](/doc/Main.Rmd) or [Main.pdf](/doc/Main.pdf)
+Please look at [Main.Rmd](/doc/Main.Rmd) or [PDF version](/doc/Main.pdf).
 
-**Contribution statement**: ([Please see the file here.](doc/a_note_on_contributions.md)) All team members contributed equally in all stages of this project. All team members approve our work presented in this GitHub repository including this contributions statement. 
+### Contribution statement
+([Please see the file here.](doc/a_note_on_contributions.md)) All team members contributed equally in all stages of this project. All team members approve our work presented in this GitHub repository including this contributions statement. 
 
-Following [suggestions](http://nicercode.github.io/blog/2013-04-05-projects/) by [RICH FITZJOHN](http://nicercode.github.io/about/#Team) (@richfitz). This folder is orgarnized as follows.
 
-
-### Note
+### Note on data
 Data is large, so they are not in the data folder.
 
 The main dataset we used to extract features is: 
@@ -31,6 +30,7 @@ The initial dataset we looked into is:
 	+ https://www.kaggle.com/mozillaorg/common-voice
 	+ This data was large enough, but the file structure in Kaggle didn't match the csv file, and csv file had many missing labels.
 
+Following [suggestions](http://nicercode.github.io/blog/2013-04-05-projects/) by [RICH FITZJOHN](http://nicercode.github.io/about/#Team) (@richfitz). This folder is orgarnized as follows.
 
 ```
 proj/
